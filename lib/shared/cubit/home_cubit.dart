@@ -1,10 +1,7 @@
 // ignore_for_file: avoid_print, deprecated_member_use
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../network/remote/end_points.dart';
 import '../../shared/cubit/home_state.dart';
@@ -141,31 +138,5 @@ class HomeCubit extends Cubit<HomeStates> {
       getFromDB(database);
       emit(SuccessDeleteFromDBState());
     });
-  }
-
-  Future<void> requestStoragePermission(String url) async {
-    final PermissionStatus status = await Permission.storage.request();
-    if (status.isGranted) {
-      await downloadAndSaveImage(url);
-    } else if (status.isDenied) {
-      // Permission denied
-    } else if (status.isPermanentlyDenied) {
-      openAppSettings();
-    }
-  }
-
-  Future<void> downloadAndSaveImage(String imageUrl) async {
-    final Directory appDir = await getApplicationDocumentsDirectory();
-    final String fileName = imageUrl.split('/').last;
-    final String filePath = '${appDir.path}/$fileName';
-
-    try {
-      await DioHelper.downloadImage(imageUrl: imageUrl, filePath: filePath);
-      emit(SuccessDownloadImageState());
-    } catch (e) {
-      emit(ErrorDownloadImageState());
-      print('Error downloading image: $e');
-      // Handle download error
-    }
   }
 }

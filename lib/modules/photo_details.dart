@@ -97,7 +97,6 @@ class PhotoDatails extends StatelessWidget {
                           Expanded(
                             child: MaterialButton(
                                 onPressed: () {
-                                  print(photo);
                                   downloadFile(photo);
                                 },
                                 child: const Column(
