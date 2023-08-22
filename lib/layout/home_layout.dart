@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:josequal_task/shared/component.dart';
+import '../shared/component.dart';
 import '../modules/search.dart';
 import '../shared/constant.dart';
 import '../shared/cubit/home_cubit.dart';
@@ -54,9 +54,6 @@ class HomeLayout extends StatelessWidget {
                           HomeCubit.get(context).currentIndex = 0;
                           HomeCubit.get(context)
                               .changeNav(HomeCubit.get(context).currentIndex);
-                          defaultToast(
-                              massage: '*NOTE: Images need to be cached',
-                              state: ToastStates.WARNING);
                         },
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

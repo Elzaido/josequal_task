@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../network/remote/end_points.dart';
 import '../../shared/cubit/home_state.dart';
@@ -40,6 +41,8 @@ class HomeCubit extends Cubit<HomeStates> {
     }
   }
 
+// API functions:
+
   void getPhotosData() {
     emit(LoadingGetPhotosState());
     if (photos.isEmpty) {
@@ -47,7 +50,6 @@ class HomeCubit extends Cubit<HomeStates> {
         'per_page': '40',
       }).then((value) {
         photos = value.data['photos'];
-        print(photos);
         emit(SuccessGetPhotosState());
       }).catchError((error) {
         print(error.toString());
@@ -74,6 +76,8 @@ class HomeCubit extends Cubit<HomeStates> {
   late Database database;
   List<Map> favoriteList = [];
 
+// Sqflite functions:
+
   createDB() {
     openDatabase('photo.db', version: 1, onCreate: (database, version) {
       print('DB Created');
@@ -96,7 +100,6 @@ class HomeCubit extends Cubit<HomeStates> {
     });
   }
 
-  // Insert some records in a transaction
   insertToDB({
     required String image,
     required String url,
@@ -138,5 +141,34 @@ class HomeCubit extends Cubit<HomeStates> {
       getFromDB(database);
       emit(SuccessDeleteFromDBState());
     });
+  }
+
+// Download image function:
+
+  Future<void> requestStoragePermission(String url) async {
+    PermissionStatus status = await Permission.storage.request();
+    if (status.isGranted) {
+      downloadFile(url);
+    } else if (status.isDenied) {
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
+  void downloadFile(String url) async {
+    // var appDocDir = await getApplicationSupportDirectory();
+    // var path = "${appDocDir.path}/image.jpg";
+    try {
+      DioHelper.downloadImage(imageUrl: url);
+
+      defaultToast(
+          massage: 'Image Downloaded, check your gallery after a minute',
+          state: ToastStates.SUCCESS);
+      emit(SuccessDownloadImageState());
+    } catch (error) {
+      emit(ErrorDownloadImageState());
+      defaultToast(
+          massage: 'Something wrong happened!', state: ToastStates.ERROR);
+    }
   }
 }

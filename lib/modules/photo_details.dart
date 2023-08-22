@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import '../shared/component.dart';
 import '../shared/cubit/home_cubit.dart';
 
@@ -97,7 +95,8 @@ class PhotoDatails extends StatelessWidget {
                           Expanded(
                             child: MaterialButton(
                                 onPressed: () {
-                                  downloadFile(photo);
+                                  HomeCubit.get(context)
+                                      .requestStoragePermission(photo);
                                 },
                                 child: const Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -122,18 +121,4 @@ class PhotoDatails extends StatelessWidget {
       ),
     );
   }
-}
-
-void downloadFile(String url) async {
-  var time = DateTime.now().microsecondsSinceEpoch;
-  var path = "/storage/emulated/0/Download/image-$time.jpg";
-  var file = File(path);
-  var res = await get(Uri.parse(url));
-  file.writeAsBytes(res.bodyBytes).then((value) {
-    defaultToast(
-        massage: 'Image Downloaded, check your gallery after a minute',
-        state: ToastStates.SUCCESS);
-  }).catchError((error) {
-    defaultToast(massage: 'Something wrong happens!', state: ToastStates.ERROR);
-  });
 }
