@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../network/remote/end_points.dart';
@@ -148,27 +149,15 @@ class HomeCubit extends Cubit<HomeStates> {
   Future<void> requestStoragePermission(String url) async {
     PermissionStatus status = await Permission.storage.request();
     if (status.isGranted) {
-      downloadFile(url);
+      FileDownloader.downloadFile(
+          url: url,
+          onDownloadCompleted: (value) {
+            defaultToast(
+                massage: 'Download complete', state: ToastStates.SUCCESS);
+          });
     } else if (status.isDenied) {
     } else if (status.isPermanentlyDenied) {
       openAppSettings();
-    }
-  }
-
-  void downloadFile(String url) async {
-    // var appDocDir = await getApplicationSupportDirectory();
-    // var path = "${appDocDir.path}/image.jpg";
-    try {
-      DioHelper.downloadImage(imageUrl: url);
-
-      defaultToast(
-          massage: 'Image Downloaded, check your gallery after a minute',
-          state: ToastStates.SUCCESS);
-      emit(SuccessDownloadImageState());
-    } catch (error) {
-      emit(ErrorDownloadImageState());
-      defaultToast(
-          massage: 'Something wrong happened!', state: ToastStates.ERROR);
     }
   }
 }
